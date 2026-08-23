@@ -25,7 +25,6 @@ const googleProvider = new GoogleAuthProvider();
 const BASE_URL = "https://keane3029-lab.github.io/timer";
 
 let currentUser = null;
-let currentTier = "premium";
 let capsules = [];
 let unsubCapsules = null;
 
@@ -68,13 +67,11 @@ function fmtRemaining(ms) {
   return `${m}m ${s % 60}s`;
 }
 
-// Handle Sign In Triggers across pages
 async function handleSignIn() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     
-    // ensure profile
     const uRef = doc(db, "users", user.uid);
     const uSnap = await getDoc(uRef);
     if (!uSnap.exists()) {
@@ -86,10 +83,7 @@ async function handleSignIn() {
       });
     }
 
-    // if we are on index.html, redirect to welcome.html
-    if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/" || window.location.pathname.endsWith("/timer/")) {
-      window.location.href = "welcome.html";
-    }
+    window.location.href = "./welcome.html";
   } catch (e) {
     toast("Sign-in failed: " + e.message);
   }
@@ -107,15 +101,13 @@ onAuthStateChanged(auth, async (user) => {
 
   if (!user) {
     if (isWelcomePage) {
-      // Not logged in on welcome page -> kick back to index
-      window.location.href = "index.html";
+      window.location.href = "./index.html";
     }
     return;
   }
 
-  // If logged in on index page, automatically drift to welcome portal
-  if (window.location.pathname.endsWith("index.html") || window.location.pathname === "/" || window.location.pathname.endsWith("/timer/")) {
-    window.location.href = "welcome.html";
+  if (!isWelcomePage) {
+    window.location.href = "./welcome.html";
     return;
   }
 
@@ -138,7 +130,7 @@ function renderSignedInUser(user) {
     `;
     document.getElementById("signOutBtn").addEventListener("click", () => {
       signOut(auth).then(() => {
-        window.location.href = "index.html";
+        window.location.href = "./index.html";
       });
     });
   }
@@ -156,7 +148,7 @@ function renderCapsules() {
   const list = document.getElementById("capsuleList");
   if (!list) return;
   if (capsules.length === 0) {
-    list.innerHTML = `<div class="empty">No capsules sealed yet. Create one above — it'll show up here.</div>`;
+    list.innerHTML = `<div class="empty">No capsules sealed yet. Create one above — it will show up here.</div>`;
     return;
   }
   list.innerHTML = capsules
@@ -236,7 +228,6 @@ if (capsuleForm) {
   });
 }
 
-// Starfield background
 (function starfield() {
   const canvas = document.getElementById("starfield");
   if (!canvas) return;
