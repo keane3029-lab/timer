@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaultline — cosmic time capsules</title>
+<meta name="description" content="Seal a message, a secret, or a prediction, and let it drift until the exact moment it's meant to open.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="void-gradient"></div>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><span class="glyph"></span> VAULTLINE</div>
+    <div class="auth-area" id="authArea">
+      <button id="signInBtn" class="btn btn-primary">Sign in with Google</button>
+    </div>
+  </header>
+
+  <section class="hero" id="signedOutHero">
+    <div class="eyebrow">a minimalist cosmic vault</div>
+    <h1>Lock a secret away.<br>Let <em>time</em> decide when it opens.</h1>
+    <p>Seal exam stress, a confession, or a fifty-year prediction into a capsule with its own countdown seal. Sign in to start sealing.</p>
+    <div style="margin-top: 28px;">
+      <button id="heroSignInBtn" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px;">Sign in with Google to enter</button>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
