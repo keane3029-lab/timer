@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaultline — Shared Capsule</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="void-gradient"></div>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><span class="glyph"></span> VAULTLINE VIEWER</div>
+    <div class="auth-area">
+      <a href="index.html" class="btn btn-ghost">Create your own</a>
+    </div>
+  </header>
+
+  <main class="panel" id="vaultPanel">
+    <h2>Loading capsule...</h2>
+    <div class="sub">Connecting to the cosmic void.</div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8HTe3qW-GLe8vxTkBxkw9x27kYCsNJmY",
+    authDomain: "timer-3f065.firebaseapp.com",
+    projectId: "timer-3f065",
+    storageBucket: "timer-3f065.firebasestorage.app",
+    messagingSenderId: "98237580008",
+    appId: "1:98237580008:web:2c946605b8644874a47f5d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadVault() {
+    const pathSegments = window.location.pathname.split("/");
+    const capsuleId = pathSegments[pathSegments.length - 1] || new URLSearchParams(window.location.search).get("id");
+    const panel = document.getElementById("vaultPanel");
+
+    if (!capsuleId || capsuleId === "vault.html" || capsuleId === "timer") {
+      panel.innerHTML = `<h2>Invalid vault link</h2><div class="sub">This capsule link is broken or missing an ID.</div>`;
+      return;
+    }
+
+    try {
+      const snap = await getDoc(doc(db, "capsules", capsuleId));
+      if (!snap.exists()) {
+        panel.innerHTML = `<h2>Vault not found</h2><div class="sub">This capsule was deleted or never existed in the void.</div>`;
+        return;
+      }
+
+      const data = snap.data();
+      if (data.visibility === "private") {
+        panel.innerHTML = `<h2>Private vault</h2><div class="sub">The owner locked this capsule away as private. Only they can view it.</div>`;
+        return;
+      }
+
+      const remaining = (data.unlockAt || 0) - Date.now();
+      if (remaining > 0) {
+        panel.innerHTML = `
+          <h2>${escapeHtml(data.title)}</h2>
+          <div class="sub">This capsule is still sealed inside the void.</div>
+          <div style="margin-top:20px; font-size:18px; font-weight:600; color: #a78bfa;">
+            Unlocks in: ${Math.ceil(remaining / 60000)} minutes
+          </div>
+        `;
+      } else {
+        panel.innerHTML = `
+          <h2>${escapeHtml(data.title)}</h2>
+          <div class="sub">The time has arrived. Here is the revealed message:</div>
+          <div style="margin-top:16px; background:#0d0d12; border:1px solid var(--border); padding:16px; border-radius:8px; white-space: pre-wrap; font-size:14px;">${escapeHtml(data.message)}</div>
+        `;
+      }
+    } catch (e) {
+      panel.innerHTML = `<h2>Error loading vault</h2><div class="sub">${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  function escapeHtml(s) {
+    const d = document.createElement("div");
+    d.textContent = s || "";
+    return d.innerHTML;
+  }
+
+  loadVault();
+</script>
+</body>
+</html>
