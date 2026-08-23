@@ -179,7 +179,7 @@ function renderCapsules() {
     const id = card.dataset.id;
     const c = capsules.find(x => x.id === id);
     card.querySelector('[data-action="copy"]').addEventListener("click", () => {
-      navigator.clipboard.writeText(`${BASE_URL}/${id}`);
+      navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
       toast("Vault link copied");
     });
     card.querySelector('[data-action="toggle"]').addEventListener("click", async () => {
@@ -224,7 +224,7 @@ if (capsuleForm) {
     });
 
     capsuleForm.reset();
-    toast(`Capsule sealed → ${BASE_URL}/${id}`);
+    toast(`Capsule sealed → ${BASE_URL}/vault.html?id=${id}`);
   });
 }
 
