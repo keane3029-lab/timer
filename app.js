@@ -102,10 +102,13 @@ function renderSignedInUser(user) {
     <button id="signOutBtn" class="btn btn-ghost">Sign out</button>
   `;
 
-  document.getElementById("signOutBtn").addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "./index.html";
-  });
+  const signOutBtn = document.getElementById("signOutBtn");
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "./index.html";
+    });
+  }
 }
 
 if (capsuleForm) {
@@ -113,10 +116,20 @@ if (capsuleForm) {
     e.preventDefault();
     if (!currentUser) return;
 
-    const title = document.getElementById("capsuleTitle").value.trim();
-    const message = document.getElementById("capsuleMessage").value.trim();
-    const unlockDateStr = document.getElementById("unlockDate").value;
-    const visibility = document.getElementById("visibilitySelect").value;
+    const titleEl = document.getElementById("capsuleTitle");
+    const messageEl = document.getElementById("capsuleMessage");
+    const unlockDateEl = document.getElementById("unlockDate");
+    const visibilitySelectEl = document.getElementById("visibilitySelect");
+
+    if (!titleEl || !messageEl || !unlockDateEl || !visibilitySelectEl) {
+      toast("Form elements missing king");
+      return;
+    }
+
+    const title = titleEl.value.trim();
+    const message = messageEl.value.trim();
+    const unlockDateStr = unlockDateEl.value;
+    const visibility = visibilitySelectEl.value;
 
     if (!title || !message || !unlockDateStr) {
       toast("Fill out all fields king");
@@ -168,7 +181,6 @@ function renderCapsules(capsules) {
   }
 
   capsuleList.innerHTML = capsules.map(c => {
-    const isUnlocked = Date.now() >= (c.unlockAt || 0);
     const dateStr = new Date(c.unlockAt).toLocaleString();
     return `
       <div class="capsule-card" data-id="${c.id}">
@@ -203,7 +215,9 @@ if (capsuleList && !capsuleList.dataset.listening) {
     }
     
     if (action === "toggle") {
-      const currentVis = card.querySelector("strong").textContent.trim();
+      const currentVisEl = card.querySelector("strong");
+      if (!currentVisEl) return;
+      const currentVis = currentVisEl.textContent.trim();
       const newVis = currentVis === "public" ? "private" : "public";
       await updateDoc(doc(db, "capsules", id), { visibility: newVis });
       toast("Visibility updated");
