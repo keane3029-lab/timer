@@ -98,6 +98,7 @@ if (heroSignInBtn) heroSignInBtn.addEventListener("click", handleSignIn);
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   const isWelcomePage = window.location.pathname.includes("welcome.html");
+  const isIndexPage = window.location.pathname.includes("index.html") || window.location.pathname.endsWith("/timer") || window.location.pathname.endsWith("/");
 
   if (!user) {
     if (isWelcomePage) {
@@ -106,7 +107,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  if (!isWelcomePage) {
+  if (user && isIndexPage) {
     window.location.href = "./welcome.html";
     return;
   }
