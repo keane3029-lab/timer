@@ -124,13 +124,14 @@ function renderSignedInUser(user) {
       <div class="user-chip">
         <img src="${user.photoURL || ''}" alt="">
         <span>${user.displayName || user.email}</span>
-        <span class="tier-badge premium">premium</span>
+     authArea.innerHTML = `
+      <div class="user-chip">
+        <img src="${user.photoURL || ''}" alt="">
+        <span>${user.displayName || user.email}</span>
+        <span class="tier-badge free">free</span>
       </div>
       <button id="signOutBtn" class="btn btn-ghost">Sign out</button>
     `;
-    document.getElementById("signOutBtn").addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "./index.html";
       });
     });
   }
