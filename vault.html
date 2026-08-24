@@ -43,12 +43,12 @@
   const db = getFirestore(app);
 
   async function loadVault() {
-    const pathSegments = window.location.pathname.split("/");
-    const capsuleId = pathSegments[pathSegments.length - 1] || new URLSearchParams(window.location.search).get("id");
+    const params = new URLSearchParams(window.location.search);
+    const capsuleId = params.get("id");
     const panel = document.getElementById("vaultPanel");
 
-    if (!capsuleId || capsuleId === "vault.html" || capsuleId === "timer") {
-      panel.innerHTML = `<h2>Invalid vault link</h2><div class="sub">This capsule link is broken or missing an ID.</div>`;
+    if (!capsuleId) {
+      panel.innerHTML = `<h2>Invalid vault link</h2><div class="sub">This capsule link is missing an ID parameter.</div>`;
       return;
     }
 
