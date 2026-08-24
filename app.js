@@ -183,37 +183,37 @@ function renderCapsules(capsules) {
       </div>
     `;
   }).join("");
+}
 
-  capsuleList.querySelectorAll(".capsule-card").forEach(card => {
+if (capsuleList && !capsuleList.dataset.listening) {
+  capsuleList.dataset.listening = "true";
+  capsuleList.addEventListener("click", async (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    
+    const card = btn.closest(".capsule-card");
+    if (!card) return;
+    
     const id = card.dataset.id;
-    const c = capsules.find(x => x.id === id);
-
-    const copyBtn = card.querySelector('[data-action="copy"]');
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
-        toast("Vault link copied");
-      });
+    const action = btn.dataset.action;
+    
+    if (action === "copy") {
+      navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
+      toast("Vault link copied");
     }
-
-    const toggleBtn = card.querySelector('[data-action="toggle"]');
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", async () => {
-        await updateDoc(doc(db, "capsules", id), {
-          visibility: c.visibility === "public" ? "private" : "public"
-        });
-        toast("Visibility updated");
-      });
+    
+    if (action === "toggle") {
+      const currentVis = card.querySelector("strong").textContent.trim();
+      const newVis = currentVis === "public" ? "private" : "public";
+      await updateDoc(doc(db, "capsules", id), { visibility: newVis });
+      toast("Visibility updated");
     }
-
-    const deleteBtn = card.querySelector('[data-action="delete"]');
-    if (deleteBtn) {
-      deleteBtn.addEventListener("click", async () => {
-        if (confirm("Permanently delete this capsule?")) {
-          await deleteDoc(doc(db, "capsules", id));
-          toast("Capsule deleted");
-        }
-      });
+    
+    if (action === "delete") {
+      if (confirm("Permanently delete this capsule?")) {
+        await deleteDoc(doc(db, "capsules", id));
+        toast("Capsule deleted");
+      }
     }
   });
 }
