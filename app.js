@@ -35,7 +35,7 @@ const provider = new GoogleAuthProvider();
 
 const BASE_URL = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "");
 
-let currentUser = null;
+window.currentUser = null;
 let unsubscribeCapsules = null;
 
 const authArea = document.getElementById("authArea");
@@ -65,10 +65,32 @@ if (loginBtn) {
 }
 
 onAuthStateChanged(auth, async (user) => {
+  window.currentUser = user;
   currentUser = user;
   const isWelcomePage = window.location.pathname.includes("welcome.html");
   const isIndexPage = window.location.pathname.includes("index.html") || window.location.pathname.endsWith("/timer") || window.location.pathname.endsWith("/");
 
+  if (!user) {
+    if (isWelcomePage) {
+      window.location.href = "./index.html";
+    }
+    if (unsubscribeCapsules) {
+      unsubscribeCapsules();
+      unsubscribeCapsules = null;
+    }
+    return;
+  }
+
+  if (user && isIndexPage) {
+    window.location.href = "./welcome.html";
+    return;
+  }
+
+  if (isWelcomePage) {
+    renderSignedInUser(user);
+    watchCapsules(user.uid);
+  }
+});
   if (!user) {
     if (isWelcomePage) {
       window.location.href = "./index.html";
