@@ -39,7 +39,7 @@ let currentUser = null;
 let unsubscribeCapsules = null;
 
 const authArea = document.getElementById("authArea");
-const loginBtn = document.getElementById("loginBtn");
+const loginBtn = document.getElementById("signInBtn") || document.getElementById("heroSignInBtn");
 const capsuleForm = document.getElementById("capsuleForm");
 const capsuleList = document.getElementById("capsuleList");
 const toastEl = document.getElementById("toast");
