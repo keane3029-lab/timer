@@ -39,12 +39,12 @@ let currentUser = null;
 let unsubscribeCapsules = null;
 
 const authArea = document.getElementById("authArea");
-const loginBtn = document.getElementById("signInBtn") || document.getElementById("heroSignInBtn");
+const loginBtn = document.getElementById("signInBtn") || document.getElementById("heroSignInBtn") || document.getElementById("loginBtn");
 const capsuleForm = document.getElementById("capsuleForm");
 const capsuleList = document.getElementById("capsuleList");
 const toastEl = document.getElementById("toast");
-
 function toast(msg) {
+  
   if (!toastEl) return;
   toastEl.textContent = msg;
   toastEl.className = "show";
