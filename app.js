@@ -91,27 +91,6 @@ onAuthStateChanged(auth, async (user) => {
     watchCapsules(user.uid);
   }
 });
-  if (!user) {
-    if (isWelcomePage) {
-      window.location.href = "./index.html";
-    }
-    if (unsubscribeCapsules) {
-      unsubscribeCapsules();
-      unsubscribeCapsules = null;
-    }
-    return;
-  }
-
-  if (user && isIndexPage) {
-    window.location.href = "./welcome.html";
-    return;
-  }
-
-  if (isWelcomePage) {
-    renderSignedInUser(user);
-    watchCapsules(user.uid);
-  }
-});
 
 function renderSignedInUser(user) {
   if (!authArea) return;
@@ -196,7 +175,7 @@ function renderCapsules(capsules) {
   if (!capsuleList) return;
   if (capsules.length === 0) {
     capsuleList.innerHTML = `<div class="sub">no capsules found. create your first one above.</div>`;
-  
+    return;
   }
 
   capsuleList.innerHTML = capsules.map(c => {
