@@ -196,7 +196,7 @@ function renderCapsules(capsules) {
   if (!capsuleList) return;
   if (capsules.length === 0) {
     capsuleList.innerHTML = `<div class="sub">no capsules found. create your first one above.</div>`;
-    return;
+  
   }
 
   capsuleList.innerHTML = capsules.map(c => {
