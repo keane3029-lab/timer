@@ -43,8 +43,8 @@ const loginBtn = document.getElementById("signInBtn") || document.getElementById
 const capsuleForm = document.getElementById("capsuleForm");
 const capsuleList = document.getElementById("capsuleList");
 const toastEl = document.getElementById("toast");
+
 function toast(msg) {
-  
   if (!toastEl) return;
   toastEl.textContent = msg;
   toastEl.className = "show";
@@ -121,10 +121,7 @@ if (capsuleForm) {
     const unlockDateEl = document.getElementById("unlockDate");
     const visibilitySelectEl = document.getElementById("visibilitySelect");
 
-    if (!titleEl || !messageEl || !unlockDateEl || !visibilitySelectEl) {
-      toast("Form elements missing king");
-      return;
-    }
+    if (!titleEl || !messageEl || !unlockDateEl || !visibilitySelectEl) return;
 
     const title = titleEl.value.trim();
     const message = messageEl.value.trim();
@@ -162,6 +159,42 @@ if (capsuleForm) {
 
 function watchCapsules(uid) {
   if (!capsuleList) return;
+  
+  if (!capsuleList.dataset.listening) {
+    capsuleList.dataset.listening = "true";
+    capsuleList.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      
+      const card = btn.closest(".capsule-card");
+      if (!card) return;
+      
+      const id = card.dataset.id;
+      const action = btn.dataset.action;
+      
+      if (action === "copy") {
+        navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
+        toast("Vault link copied");
+      }
+      
+      if (action === "toggle") {
+        const currentVisEl = card.querySelector("strong");
+        if (!currentVisEl) return;
+        const currentVis = currentVisEl.textContent.trim();
+        const newVis = currentVis === "public" ? "private" : "public";
+        await updateDoc(doc(db, "capsules", id), { visibility: newVis });
+        toast("Visibility updated");
+      }
+      
+      if (action === "delete") {
+        if (confirm("Permanently delete this capsule?")) {
+          await deleteDoc(doc(db, "capsules", id));
+          toast("Capsule deleted");
+        }
+      }
+    });
+  }
+
   const q = query(collection(db, "capsules"), where("uid", "==", uid));
   
   unsubscribeCapsules = onSnapshot(q, (snapshot) => {
@@ -195,41 +228,6 @@ function renderCapsules(capsules) {
       </div>
     `;
   }).join("");
-}
-
-if (capsuleList && !capsuleList.dataset.listening) {
-  capsuleList.dataset.listening = "true";
-  capsuleList.addEventListener("click", async (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    
-    const card = btn.closest(".capsule-card");
-    if (!card) return;
-    
-    const id = card.dataset.id;
-    const action = btn.dataset.action;
-    
-    if (action === "copy") {
-      navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
-      toast("Vault link copied");
-    }
-    
-    if (action === "toggle") {
-      const currentVisEl = card.querySelector("strong");
-      if (!currentVisEl) return;
-      const currentVis = currentVisEl.textContent.trim();
-      const newVis = currentVis === "public" ? "private" : "public";
-      await updateDoc(doc(db, "capsules", id), { visibility: newVis });
-      toast("Visibility updated");
-    }
-    
-    if (action === "delete") {
-      if (confirm("Permanently delete this capsule?")) {
-        await deleteDoc(doc(db, "capsules", id));
-        toast("Capsule deleted");
-      }
-    }
-  });
 }
 
 function escapeHtml(s) {
