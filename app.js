@@ -59,7 +59,7 @@ if (loginBtn) {
       await signInWithPopup(auth, provider);
     } catch (e) {
       console.error(e);
-      toast("Login failed: " + e.message);
+      toast("login failed: " + e.message);
     }
   });
 }
@@ -99,7 +99,7 @@ function renderSignedInUser(user) {
       <span>${user.displayName || user.email}</span>
       <span class="tier-badge free">free</span>
     </div>
-    <button id="signOutBtn" class="btn btn-ghost">Sign out</button>
+    <button id="signOutBtn" class="btn btn-ghost">sign out</button>
   `;
 
   const signOutBtn = document.getElementById("signOutBtn");
@@ -129,13 +129,13 @@ if (capsuleForm) {
     const visibility = visibilitySelectEl.value;
 
     if (!title || !message || !unlockDateStr) {
-      toast("Fill out all fields king");
+      toast("fill out all fields king");
       return;
     }
 
     const unlockAt = new Date(unlockDateStr).getTime();
     if (unlockAt <= Date.now()) {
-      toast("Unlock date must be in the future");
+      toast("unlock date must be in the future");
       return;
     }
 
@@ -149,52 +149,16 @@ if (capsuleForm) {
         createdAt: serverTimestamp()
       });
       capsuleForm.reset();
-      toast("Capsule sealed in the void");
+      toast("capsule sealed in the void");
     } catch (e) {
       console.error(e);
-      toast("Error creating capsule: " + e.message);
+      toast("error creating capsule: " + e.message);
     }
   });
 }
 
 function watchCapsules(uid) {
   if (!capsuleList) return;
-  
-  if (!capsuleList.dataset.listening) {
-    capsuleList.dataset.listening = "true";
-    capsuleList.addEventListener("click", async (e) => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      
-      const card = btn.closest(".capsule-card");
-      if (!card) return;
-      
-      const id = card.dataset.id;
-      const action = btn.dataset.action;
-      
-      if (action === "copy") {
-        navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
-        toast("Vault link copied");
-      }
-      
-      if (action === "toggle") {
-        const currentVisEl = card.querySelector("strong");
-        if (!currentVisEl) return;
-        const currentVis = currentVisEl.textContent.trim();
-        const newVis = currentVis === "public" ? "private" : "public";
-        await updateDoc(doc(db, "capsules", id), { visibility: newVis });
-        toast("Visibility updated");
-      }
-      
-      if (action === "delete") {
-        if (confirm("Permanently delete this capsule?")) {
-          await deleteDoc(doc(db, "capsules", id));
-          toast("Capsule deleted");
-        }
-      }
-    });
-  }
-
   const q = query(collection(db, "capsules"), where("uid", "==", uid));
   
   unsubscribeCapsules = onSnapshot(q, (snapshot) => {
@@ -209,7 +173,7 @@ function watchCapsules(uid) {
 function renderCapsules(capsules) {
   if (!capsuleList) return;
   if (capsules.length === 0) {
-    capsuleList.innerHTML = `<div class="sub">No capsules found. Create your first one above.</div>`;
+    capsuleList.innerHTML = `<div class="sub">no capsules found. create your first one above.</div>`;
     return;
   }
 
@@ -218,17 +182,50 @@ function renderCapsules(capsules) {
     return `
       <div class="capsule-card" data-id="${c.id}">
         <h3>${escapeHtml(c.title)}</h3>
-        <div class="sub">Unlocks: ${dateStr}</div>
-        <div class="sub">Visibility: <strong>${c.visibility}</strong></div>
+        <div class="sub">unlocks: ${dateStr}</div>
+        <div class="sub">visibility: <strong>${c.visibility}</strong></div>
         <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-ghost" data-action="copy">Copy Link</button>
-          <button class="btn btn-ghost" data-action="toggle">Toggle Public/Private</button>
-          <button class="btn btn-danger" data-action="delete">Delete</button>
+          <button class="btn btn-ghost" data-action="copy">copy link</button>
+          <button class="btn btn-ghost" data-action="toggle">toggle public/private</button>
+          <button class="btn btn-danger" data-action="delete">delete</button>
         </div>
       </div>
     `;
   }).join("");
 }
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  
+  const card = btn.closest(".capsule-card");
+  if (!card) return;
+  
+  const id = card.dataset.id;
+  const action = btn.dataset.action;
+  if (!id || !action) return;
+  
+  if (action === "copy") {
+    navigator.clipboard.writeText(`${BASE_URL}/vault.html?id=${id}`);
+    toast("vault link copied");
+  }
+  
+  if (action === "toggle") {
+    const currentVisEl = card.querySelector("strong");
+    if (!currentVisEl) return;
+    const currentVis = currentVisEl.textContent.trim();
+    const newVis = currentVis === "public" ? "private" : "public";
+    await updateDoc(doc(db, "capsules", id), { visibility: newVis });
+    toast("visibility updated");
+  }
+  
+  if (action === "delete") {
+    if (confirm("permanently delete this capsule?")) {
+      await deleteDoc(doc(db, "capsules", id));
+      toast("capsule deleted");
+    }
+  }
+});
 
 function escapeHtml(s) {
   const d = document.createElement("div");
